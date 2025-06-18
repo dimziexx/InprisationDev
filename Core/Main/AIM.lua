@@ -8,9 +8,10 @@ local s = {
     e = false,
     t = "Head",
     d = 1000,
-    s = 0.5,
+    s = 0.2,
     fov = 400,
-    visible = false
+    visible = false,
+    dt = 0.05
 }
 
 local fovCircle = Drawing.new("Circle")
@@ -20,6 +21,10 @@ fovCircle.Thickness = 1
 fovCircle.Color = Color3.fromRGB(255, 255, 255)
 fovCircle.Filled = false
 fovCircle.Transparency = 1
+
+local ct = nil
+local lt = 0
+local tp = nil
 
 local function g()
     local cp = nil
@@ -37,7 +42,6 @@ local function g()
         local tp = ch:FindFirstChild(s.t)
         if not tp then continue end
         
-        -- Check if target is behind a wall
         local ray = Ray.new(c.CFrame.Position, (tp.Position - c.CFrame.Position).Unit * s.d)
         local hit, _ = workspace:FindPartOnRayWithIgnoreList(ray, {l.Character})
         if hit and hit:IsDescendantOf(ch) then
@@ -61,10 +65,10 @@ end
 local function a(t)
     if not t then return end
     
-    local tp = t.Position
-    local cp = c.CFrame.Position
+    local tpos = t.Position
+    local cpos = c.CFrame.Position
     
-    local ac = CFrame.lookAt(cp, tp)
+    local ac = CFrame.lookAt(cpos, tpos)
     c.CFrame = c.CFrame:Lerp(ac, s.s)
 end
 
@@ -77,12 +81,16 @@ u.InputBegan:Connect(function(i, gp)
     elseif i.UserInputType == Enum.UserInputType.MouseButton2 then
         s.e = true
         fovCircle.Visible = s.visible
+        ct = nil
+        tp = nil
     end
 end)
 
 u.InputEnded:Connect(function(i, gp)
     if i.UserInputType == Enum.UserInputType.MouseButton2 then
         s.e = false
+        ct = nil
+        tp = nil
     end
 end)
 
@@ -91,11 +99,27 @@ r.RenderStepped:Connect(function()
     
     if not s.e then return end
     
+    local n = tick()
+    if n - lt < s.dt then return end
+    lt = n
+    
     local cp = g()
-    if not cp or not cp.Character then return end
+    if not cp then
+        ct = nil
+        tp = nil
+        return
+    end
     
-    local tp = cp.Character:FindFirstChild(s.t)
-    if not tp then return end
+    if cp ~= ct then
+        ct = cp
+        tp = nil
+    end
     
-    a(tp)
+    if not tp and ct.Character then
+        tp = ct.Character:FindFirstChild(s.t)
+    end
+    
+    if tp then
+        a(tp)
+    end
 end)

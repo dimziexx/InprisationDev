@@ -1,94 +1,92 @@
--- working not for all places and only for players.
-local Pz = game:GetService("Players")
-local Rz = game:GetService("RunService")
-local Lz = Pz.LocalPlayer
+local p=game:GetService("Players")
+local r=game:GetService("RunService")
+local l=p.LocalPlayer
 
-local Qw = {}
+local q={}
 
-local function Xy(p)
-    if p == Lz or not p.Character or not p.Character:FindFirstChild("HumanoidRootPart") then
+local function x(a)
+    if a==l or not a.Character or not a.Character:FindFirstChild("HumanoidRootPart")then
         return
     end
 
-    local gd = Qw[p]
-    if not gd then
-        local hl = Instance.new("Highlight")
-        hl.Adornee = p.Character
-        hl.FillColor = Color3.fromRGB(255, 0, 0)
-        hl.OutlineColor = Color3.fromRGB(255, 255, 255)
-        hl.FillTransparency = 0.5
-        hl.OutlineTransparency = 0.2
-        hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-        hl.Parent = p.Character
+    local g=q[a]
+    if not g then
+        local h=Instance.new("Highlight")
+        h.Adornee=a.Character
+        h.FillColor=Color3.fromRGB(255,0,0)
+        h.OutlineColor=Color3.fromRGB(255,255,255)
+        h.FillTransparency=0.5
+        h.OutlineTransparency=0.2
+        h.DepthMode=Enum.HighlightDepthMode.AlwaysOnTop
+        h.Parent=a.Character
 
-        Qw[p] = {
-            Ht = hl
+        q[a]={
+            h=h
         }
     end
 end
 
-local function Zt(p)
-    local gd = Qw[p]
-    if gd then
-        if gd.Ht then
-            gd.Ht:Destroy()
+local function z(a)
+    local g=q[a]
+    if g then
+        if g.h then
+            g.h:Destroy()
         end
-        Qw[p] = nil
+        q[a]=nil
     end
 end
 
-local function Yp()
-    for p, gd in pairs(Qw) do
-        if not p or not p.Character then
-            if gd.Ht then
-                gd.Ht.Enabled = false
+local function y()
+    for a,g in pairs(q)do
+        if not a or not a.Character then
+            if g.h then
+                g.h.Enabled=false
             end
             continue
         end
         
-        if p.Character:FindFirstChild("HumanoidRootPart") then
-            local hm = p.Character:FindFirstChild("Humanoid")
-            if hm and hm.Health > 0 then
-                gd.Ht.Enabled = true
+        if a.Character:FindFirstChild("HumanoidRootPart")then
+            local m=a.Character:FindFirstChild("Humanoid")
+            if m and m.Health>0 then
+                g.h.Enabled=true
             else
-                gd.Ht.Enabled = false
+                g.h.Enabled=false
             end
         else
-            gd.Ht.Enabled = false
+            g.h.Enabled=false
         end
     end
 end
 
-local updateConnection = nil
-updateConnection = Rz.RenderStepped:Connect(Yp)
+local u=r.RenderStepped:Connect(y)
 
-Pz.PlayerAdded:Connect(function(p)
-    p.CharacterAdded:Connect(function()
-        task.delay(0.1, function()
-            Xy(p)
+p.PlayerAdded:Connect(function(a)
+    a.CharacterAdded:Connect(function()
+        task.delay(0.1,function()
+            x(a)
         end)
     end)
-    p.CharacterRemoving:Connect(function()
-        Zt(p)
+    a.CharacterRemoving:Connect(function()
+        z(a)
     end)
 end)
 
-Pz.PlayerRemoving:Connect(function(p)
-    Zt(p)
+p.PlayerRemoving:Connect(function(a)
+    z(a)
 end)
 
-for _, p in ipairs(Pz:GetPlayers()) do
-    if p.Character then
-        task.delay(0.1, function()
-            Xy(p)
+for _,a in ipairs(p:GetPlayers())do
+    if a.Character then
+        task.delay(0.1,function()
+            x(a)
         end)
     end
-    p.CharacterAdded:Connect(function()
-        task.delay(0.1, function()
-            Xy(p)
+    a.CharacterAdded:Connect(function()
+        task.delay(0.1,function()
+            x(a)
         end)
     end)
-    p.CharacterRemoving:Connect(function()
-        Zt(p)
+    a.CharacterRemoving:Connect(function()
+        z(a)
     end)
 end
